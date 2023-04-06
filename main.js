@@ -37,3 +37,38 @@ app.get('/list_users',(require,response)=>{
     });
 
 });
+
+/*app.get('/list_users/1',(require,response)=>{
+    let sql = "SELECT id, user_code, name FROM member WHERE id='???' ORDER BY user_code ASC";
+    connection.query(sql,(error,data) =>{
+        console.log(error);
+        response.send({
+            message: 'member all',
+            data: data
+        });
+
+        return response;
+    });
+
+});*/
+
+app.get('/list_users/:id',(req,res)=>{
+    let qrId = req.params.id;
+    //let qr = `SELECT * FROM admindata where id = ${qrId}`;
+    let sql = `SELECT id, user_code, name FROM member WHERE id = ${qrId} ORDER BY user_code ASC`;
+    db.query(sql,(err,results) =>{
+        if (err){
+            console.log(err)
+        }
+        if (results.length>0){
+            res.send({
+                message: 'Get Data By Id',
+                data:results
+            });
+        }else{
+            res.send({
+                message:"Data not found dear"
+            })
+        }
+    });
+});
