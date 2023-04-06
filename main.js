@@ -56,7 +56,7 @@ app.get('/list_users/:id',(req,res)=>{
     let qrId = req.params.id;
     //let qr = `SELECT * FROM admindata where id = ${qrId}`;
     let sql = `SELECT id, user_code, name FROM member WHERE id = ${qrId} ORDER BY user_code ASC`;
-    db.query(sql,(err,results) =>{
+    connection.query(sql,(err,results) =>{
         if (err){
             console.log(err)
         }
