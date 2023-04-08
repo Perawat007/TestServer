@@ -9,7 +9,6 @@ const mysql = require('mysql2') //npm install mysql2
 var cors = require('cors');
 const { exit } = require('process');
 
-require('dotenv').config();
 app.engine("html", ejs.renderFile);
 app.use(useragent.express());
 app.use(cors());
@@ -25,32 +24,16 @@ const connection = mysql.createConnection({
 
 //http://localhost:5000/list_users
 app.get('/list_users',(require,response)=>{
-    let sql = "SELECT id, user_code, name FROM member WHERE status='Y' ORDER BY user_code ASC";
-    connection.query(sql,(error,data) =>{
-        console.log(error);
+    let sql = `SELECT id, user_code, name, balance FROM member WHERE status='Y' ORDER BY user_code ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
         response.send({
-            message: 'member all',
-            data: data
+            data: results
         });
 
         return response;
     });
-
 });
-
-/*app.get('/list_users/1',(require,response)=>{
-    let sql = "SELECT id, user_code, name FROM member WHERE id='???' ORDER BY user_code ASC";
-    connection.query(sql,(error,data) =>{
-        console.log(error);
-        response.send({
-            message: 'member all',
-            data: data
-        });
-
-        return response;
-    });
-
-});*/
 
 app.get('/list_users/:id',(req,res)=>{
     let qrId = req.params.id;
@@ -70,5 +53,33 @@ app.get('/list_users/:id',(req,res)=>{
                 message:"Data not found dear"
             })
         }
+    });
+});
+
+app.get('/user_play/user/:user_id',(require,response)=>{
+    let user_id = require.params.user_id;
+    let sql = `SELECT member.id AS member_id, member.user_code AS user_code, member.name AS name, member.balance AS balance, 
+    user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
+    WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY member.created_at DESC`;
+    connection.query(sql,(error,results)=>{
+        if(error){ console.log(error) }
+        response.send({
+            data: results
+        });
+    });
+});
+
+app.post('/user_play/add/:user_id',(require,response)=>{
+    let user_id = require.params.user_id;
+    let bet = require.body.bet;
+    let tiles = require.body.tiles;
+    let winline = require.body.winline;
+    let sql = `INSERT INTO user_play (member_id, bet, win, tiles, winline, created_at) value ('${user_id}','${bet}','${tiles}','${winline}', now())`;
+    connection.query(sql,(error,results)=>{
+        if(error){ console.log(error) }
+        response.send({
+            message: "Data created Success",
+            data: results
+        });
     });
 });
