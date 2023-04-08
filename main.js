@@ -8,19 +8,18 @@ const ejs = require('ejs');
 const mysql = require('mysql2') //npm install mysql2
 var cors = require('cors');
 const { exit } = require('process');
-
+require('dotenv').config()
 app.engine("html", ejs.renderFile);
 app.use(useragent.express());
 app.use(cors());
 app.use(bodyParser.json());
 app.listen(5000, () => console.log(`Listening on port... ${5000}`));
 
-const connection = mysql.createConnection({
-    host:'localhost',
-    user:'root',
-    password:'',
-    database:'db_gggame',
-    port:3306
+const connection =mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD
 })
 
 //http://localhost:5000/list_users
@@ -61,7 +60,6 @@ app.get('/user_play/user/:user_id',(require,response)=>{
             message: 'member play',
             data: results
         });
-        return response;
     })
 });
 
