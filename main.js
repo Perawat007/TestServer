@@ -22,12 +22,13 @@ const connection =mysql.createPool({
     password: process.env.DB_PASSWORD
 })
 
-//http://localhost:5000/list_users
-app.get('/list_users',(require,response)=>{
-    let sql = `SELECT id, user_code, name, balance FROM member WHERE status='Y' ORDER BY user_code ASC`;
+//http://localhost:5000/list_admins
+app.get('/list_admins',(require,response)=>{
+    let sql = `SELECT id, name, username, status FROM admin WHERE status_delete='N' ORDER BY username ASC`;
     connection.query(sql,(error,results) =>{
         if(error){ console.log(error); }
         response.send({
+            message: 'admin all',
             data: results
         });
 
@@ -35,23 +36,131 @@ app.get('/list_users',(require,response)=>{
     });
 });
 
-app.get('/list_users/:id',(require,response)=>{
-    let user_id = require.params.id;
-    console.log(user_id);
-    let sql = `SELECT id, user_code, name, balance FROM member WHERE id='${user_id}' AND status='Y' ORDER BY user_code ASC`;
+//http://localhost:5000/list_admin/1
+app.get('/list_admin/:admin_id',(require,response)=>{
+    let admin_id = require.params.admin_id;
+    let sql = `SELECT id, name, username, status FROM admin WHERE id='${admin_id}' AND status_delete='N' ORDER BY username ASC`;
     connection.query(sql,(error,results)=>{
         if(error){ console.log(error) }
         response.send({
-            //message:"Data Update Success", 
+            message: "admin select",
             data: results
         });
+
         return response;
     })
 });
 
+//http://localhost:5000/list_agents
+app.get('/list_agents',(require,response)=>{
+    let sql = `SELECT id, agent_code, website_name, name, phone, email, username, status FROM agent WHERE status_delete='N' 
+    ORDER BY username ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
+        response.send({
+            message: 'agent all',
+            data: results
+        });
+
+        return response;
+    });
+});
+
+//http://localhost:5000/list_agent/1
+app.get('/list_agent/:agent_id',(require,response)=>{
+    let agent_id = require.params.agent_id;
+    let sql = `SELECT id, agent_code, website_name, name, phone, email, username, status FROM agent WHERE id='${agent_id}' AND status_delete='N' 
+    ORDER BY username ASC`;
+    connection.query(sql,(error,results)=>{
+        if(error){ console.log(error) }
+        response.send({
+            message: "agent select",
+            data: results
+        });
+
+        return response;
+    })
+});
+
+//http://localhost:5000/list_users/agent/1
+app.get('/list_users/agent/:agent_id',(require,response)=>{
+    let agent_id = require.params.agent_id;
+    let sql = `SELECT id, member_code, name, username, balance, status FROM member WHERE agent_id='${agent_id}' AND status_delete='N' 
+    ORDER BY member_code ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
+        response.send({
+            message: 'agent member all',
+            data: results
+        });
+
+        return response;
+    });
+});
+
+//http://localhost:5000/list_users
+app.get('/list_users',(require,response)=>{
+    let sql = `SELECT id, member_code, name, username, balance, status FROM member WHERE status_delete='N' ORDER BY member_code ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
+        response.send({
+            message: 'member all',
+            data: results
+        });
+
+        return response;
+    });
+});
+
+//http:localhost:5000/list_user/1
+app.get('/list_user/:user_id',(require,response)=>{
+    let user_id = require.params.user_id;
+    let sql = `SELECT id, member_code, name, username, balance, status FROM member WHERE id='${user_id}' AND status_delete='N' 
+    ORDER BY member_code ASC`;
+    connection.query(sql,(error,results)=>{
+        if(error){ console.log(error) }
+        response.send({
+            message: "member select",
+            data: results
+        });
+
+        return response;
+    })
+});
+
+http://localhost:5000/games
+app.get('/games',(require,response)=>{
+    let sql = `SELECT id, game_name, image, status WHERE status_delete='N' ORDER BY game_name ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
+        response.send({
+            message: 'game all',
+            data: results
+        });
+
+        return response;
+    });
+});
+
+http://localhost:5000/game/1
+app.get('/game/:game_id',(require,response)=>{
+    let game_id = require.params.game_id;
+    let sql = `SELECT id, game_name, image, status WHERE id='${game_id}' AND status_delete='N' ORDER BY game_name ASC`;
+    connection.query(sql,(error,results) =>{
+        if(error){ console.log(error); }
+        response.send({
+            message: 'game select',
+            data: results
+        });
+
+        return response;
+    });
+});
+
+http://localhost:5000/user_play/user/1
 app.get('/user_play/user/:user_id',(require,response)=>{
-    let user_id = require.params.id;
-    let sql = `SELECT member.id AS member_id, member.user_code AS user_code, member.name AS name, member.balance AS balance, 
+    let user_id = require.params.user_id;
+    let sql = `SELECT member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
     user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
     WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY member.created_at DESC`;
     connection.query(sql,(error,results)=>{
@@ -60,11 +169,14 @@ app.get('/user_play/user/:user_id',(require,response)=>{
             message: 'member play',
             data: results
         });
+
+        return response;
     })
 });
 
+http://localhost:5000/user_play/add/1
 app.post('/user_play/add/:user_id',(require,response)=>{
-    let user_id = require.params.id;
+    let user_id = require.params.user_id;
     let bet = require.body.bet;
     let tiles = require.body.tiles;
     let winline = require.body.winline;
@@ -75,5 +187,7 @@ app.post('/user_play/add/:user_id',(require,response)=>{
             message: "Data created Success",
             data: results
         });
+
+        return response;
     })
 });
