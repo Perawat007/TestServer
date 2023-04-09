@@ -128,7 +128,7 @@ app.get('/list_user/:user_id',(require,response)=>{
     })
 });
 
-http://localhost:5000/games
+//http:localhost:5000/games
 app.get('/games',(require,response)=>{
     let sql = `SELECT id, game_name, image, status WHERE status_delete='N' ORDER BY game_name ASC`;
     connection.query(sql,(error,results) =>{
@@ -142,7 +142,7 @@ app.get('/games',(require,response)=>{
     });
 });
 
-http://localhost:5000/game/1
+//http:localhost:5000/game/1
 app.get('/game/:game_id',(require,response)=>{
     let game_id = require.params.game_id;
     let sql = `SELECT id, game_name, image, status WHERE id='${game_id}' AND status_delete='N' ORDER BY game_name ASC`;
@@ -157,7 +157,7 @@ app.get('/game/:game_id',(require,response)=>{
     });
 });
 
-http://localhost:5000/user_play/user/1
+//http:localhost:5000/user_play/user/1
 app.get('/user_play/user/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
     let sql = `SELECT member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
@@ -174,7 +174,7 @@ app.get('/user_play/user/:user_id',(require,response)=>{
     })
 });
 
-http://localhost:5000/user_play/add/1
+//http:localhost:5000/user_play/add/1
 app.post('/user_play/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
     let bet = require.body.bet;
