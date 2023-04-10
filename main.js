@@ -16,11 +16,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.listen(5000, () => console.log(`Listening on port... ${5000}`));
 
-const connection =mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD
+const connection = mysql.createConnection({
+    host:'localhost',
+    user:'root',
+    password:'',
+    database:'db_gggame',
+    port:3306
 })
 
 //http://localhost:5000/list_admins
@@ -106,9 +107,9 @@ app.get('/list_users',(require,response)=>{
         if(error){ console.log(error); }
         response.send({
             message: 'member all',
-            data: results
+            data: results 
         });
-
+        console.log(results)
         return response;
     });
 });
