@@ -213,7 +213,7 @@ http://localhost:5000/user_play/add/1
 app.get('/user_play/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
 
-    axios.post('http://localhost:5000/user_play/add/'+user_id,{
+    axios.post('https://relaxtimecafe.fun/user_play/add/'+user_id,{
         "member_id": user_id,
         "game_id": 1,
         "balance": 100.50,
@@ -221,12 +221,20 @@ app.get('/user_play/add/:user_id',(require,response)=>{
         "win" : 10,
         "tiles":["index1", "index2"],
         'winline': 1
-    })
-    .then(res => {
-        console.log(res.data);
-    })
-    .catch(error =>{
+    }).then(res => {
+        let sql = `SELECT user_play.id AS play_id, member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
+        user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
+        WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY user_play.id DESC`;
+        connection.query(sql,(error,results)=>{
+            if(error){ console.log(error) }
+            response.send({
+                message: "member select",
+                data: results
+            });
+    
+            return response;
+        });
+    }).catch(error =>{
         console.log(error);
     });
-
 });
