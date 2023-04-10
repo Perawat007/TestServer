@@ -6,8 +6,9 @@ const app = express();
 const useragent = require('express-useragent');
 const ejs = require('ejs');
 const mysql = require('mysql2') //npm install mysql2
+const axios = require('axios'); //npm install axios
 var cors = require('cors');
-const { exit } = require('process');
+
 require('dotenv').config()
 app.engine("html", ejs.renderFile);
 app.use(useragent.express());
@@ -48,7 +49,7 @@ app.get('/list_admin/:admin_id',(require,response)=>{
         });
 
         return response;
-    })
+    });
 });
 
 //http://localhost:5000/list_agents
@@ -79,7 +80,7 @@ app.get('/list_agent/:agent_id',(require,response)=>{
         });
 
         return response;
-    })
+    });
 });
 
 //http://localhost:5000/list_users/agent/1
@@ -112,7 +113,7 @@ app.get('/list_users',(require,response)=>{
     });
 });
 
-//http:localhost:5000/list_user/1
+http://localhost:5000/list_user/1
 app.get('/list_user/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
     let sql = `SELECT id, member_code, name, username, balance, status FROM member WHERE id='${user_id}' AND status_delete='N' 
@@ -125,12 +126,12 @@ app.get('/list_user/:user_id',(require,response)=>{
         });
 
         return response;
-    })
+    });
 });
 
-//http:localhost:5000/games
+http://localhost:5000/games
 app.get('/games',(require,response)=>{
-    let sql = `SELECT id, game_name, image, status WHERE status_delete='N' ORDER BY game_name ASC`;
+    let sql = `SELECT id, game_name, image, status FROM game WHERE status_delete='N' ORDER BY game_name ASC`;
     connection.query(sql,(error,results) =>{
         if(error){ console.log(error); }
         response.send({
@@ -142,10 +143,10 @@ app.get('/games',(require,response)=>{
     });
 });
 
-//http:localhost:5000/game/1
+http://localhost:5000/game/1
 app.get('/game/:game_id',(require,response)=>{
     let game_id = require.params.game_id;
-    let sql = `SELECT id, game_name, image, status WHERE id='${game_id}' AND status_delete='N' ORDER BY game_name ASC`;
+    let sql = `SELECT id, game_name, image, status FROM game WHERE id='${game_id}' AND status_delete='N' ORDER BY game_name ASC`;
     connection.query(sql,(error,results) =>{
         if(error){ console.log(error); }
         response.send({
@@ -157,7 +158,7 @@ app.get('/game/:game_id',(require,response)=>{
     });
 });
 
-//http:localhost:5000/user_play/user/1
+http://localhost:5000/user_play/user/1
 app.get('/user_play/user/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
     let sql = `SELECT member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
@@ -171,23 +172,60 @@ app.get('/user_play/user/:user_id',(require,response)=>{
         });
 
         return response;
-    })
+    });
 });
 
-//http:localhost:5000/user_play/add/1
+
 app.post('/user_play/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
+    let game_id = require.body.game_id;
     let bet = require.body.bet;
+    let win = require.body.win;
     let tiles = require.body.tiles;
     let winline = require.body.winline;
-    let sql = `INSERT INTO user_play (member_id, bet, win, tiles, winline, created_at) value ('${user_id}','${bet}','${tiles}','${winline}', now())`;
-    connection.query(sql,(error,results)=>{
-        if(error){console.log(error)}
-        response.send({
-            message: "Data created Success",
-            data: results
-        });
+    let sql_check = `SELECT id, member_code, name, username, balance, status FROM member WHERE id='${user_id}' AND status_delete='N' 
+    ORDER BY member_code ASC`;
+    connection.query(sql_check,(error,results)=>{
+        if(results.length > 0){
+            let sql = `INSERT INTO user_play (member_id, game_id, bet, win, tiles, winline, created_at) value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winline}', now())`;
+            connection.query(sql,(error,results)=>{
+                if(error){console.log(error)}
+                response.send({
+                    message: "Data created Success",
+                    data: results
+                });
 
-        return response;
+                return response;
+            });
+        }else{
+            response.send({
+                message: "No Data member",
+                data: results
+            });
+
+            return response;
+        } 
+    });
+});
+
+http://localhost:5000/user_play/add/1
+app.get('/user_play/add/:user_id',(require,response)=>{
+    let user_id = require.params.user_id;
+
+    axios.post('http://localhost:5000/user_play/add/'+user_id,{
+        "member_id": user_id,
+        "game_id": 1,
+        "balance": 100.50,
+        "bet": 10,
+        "win" : 10,
+        "tiles":["index1", "index2"],
+        'winline': 1
     })
+    .then(res => {
+        console.log(res.data);
+    })
+    .catch(error =>{
+        console.log(error);
+    });
+
 });
