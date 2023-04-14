@@ -16,13 +16,12 @@ app.use(cors());
 app.use(bodyParser.json());
 app.listen(5000, () => console.log(`Listening on port... ${5000}`));
 
-const connection = mysql.createConnection({
-    host:'localhost',
-    user:'root',
-    password:'',
-    database:'db_gggame',
-    port:3306
-})
+const connection = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD
+  });
 
 //http://localhost:5000/list_admins
 app.get('/list_admins',(require,response)=>{
@@ -34,7 +33,7 @@ app.get('/list_admins',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -49,7 +48,7 @@ app.get('/list_admin/:admin_id',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -64,7 +63,7 @@ app.get('/list_agents',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -80,7 +79,7 @@ app.get('/list_agent/:agent_id',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -96,7 +95,7 @@ app.get('/list_users/agent/:agent_id',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -107,10 +106,10 @@ app.get('/list_users',(require,response)=>{
         if(error){ console.log(error); }
         response.send({
             message: 'member all',
-            data: results 
+            data: results
         });
-        console.log(results)
-        return response;
+
+        response.end();
     });
 });
 
@@ -126,7 +125,25 @@ app.get('/list_user/:user_id',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
+    });
+});
+
+app.post('/user/add',(require,response)=>{
+    let member_code = require.member_code;
+    let name = require.name;
+    let username = require.username;
+    let password = require.password;
+    let sql = `SELECT id, member_code, name, username, balance, status FROM member WHERE id='${user_id}' AND status_delete='N' 
+    ORDER BY member_code ASC`;
+    connection.query(sql,(error,results)=>{
+        if(error){ console.log(error) }
+        response.send({
+            message: "member select",
+            data: results
+        });
+
+        response.end();
     });
 });
 
@@ -140,7 +157,7 @@ app.get('/games',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -155,7 +172,7 @@ app.get('/game/:game_id',(require,response)=>{
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
@@ -168,43 +185,45 @@ app.get('/user_play/user/:user_id',(require,response)=>{
     connection.query(sql,(error,results)=>{
         if(error){ console.log(error) }
         response.send({
-            message: 'member play',
+            message: "member play",
             data: results
         });
 
-        return response;
+        response.end();
     });
 });
 
 
-app.post('/user_play/add/:user_id',(require,response)=>{
+http://localhost:5000/user_play/game/add/1
+//'{"member_id": 1,"member_code": "member001","name": "member001","balance": 0,"bet":10,"win": 10,"tiles": "index1,index2","winline": 1}'
+app.post('/user_play/game/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
-    let game_id = require.body.game_id;
-    let bet = require.body.bet;
-    let win = require.body.win;
-    let tiles = require.body.tiles;
-    let winline = require.body.winline;
+    let json = require.body;
     let sql_check = `SELECT id, member_code, name, username, balance, status FROM member WHERE id='${user_id}' AND status_delete='N' 
     ORDER BY member_code ASC`;
-    connection.query(sql_check,(error,results)=>{
-        if(results.length > 0){
-            let sql = `INSERT INTO user_play (member_id, game_id, bet, win, tiles, winline, created_at) value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winline}', now())`;
-            connection.query(sql,(error,results)=>{
-                if(error){console.log(error)}
+    connection.query(sql_check,(error,results_check)=>{
+        if(results_check.length > 0){
+            let game_id = json.game_id;
+            let bet = json.bet;
+            let win = json.win;
+            let tiles = json.tiles;
+            let winline = json.winline;
+            
+            let sql_insert = `INSERT INTO user_play (member_id, game_id, bet, win, tiles, winline, created_at) value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winline}', now())`;
+            connection.query(sql_insert,(error,result)=>{
+                if(error){ console.log(error) }
                 response.send({
                     message: "Data created Success",
-                    data: results
+                    data: result
                 });
-
-                return response;
+                response.end();
             });
         }else{
             response.send({
-                message: "No Data member",
-                data: results
+                message: "no member information",
+                data: json
             });
-
-            return response;
+            response.end();
         } 
     });
 });
@@ -213,28 +232,18 @@ http://localhost:5000/user_play/add/1
 app.get('/user_play/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
 
-    axios.post('https://relaxtimecafe.fun/user_play/add/'+user_id,{
+    axios.post('http://localhost:5000/user_play/game/add/'+user_id,{
         "member_id": user_id,
         "game_id": 1,
         "balance": 100.50,
         "bet": 10,
         "win" : 10,
         "tiles":["index1", "index2"],
-        'winline': 1
+        "winline": 1
     }).then(res => {
-        let sql = `SELECT user_play.id AS play_id, member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
-        user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
-        WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY user_play.id DESC`;
-        connection.query(sql,(error,results)=>{
-            if(error){ console.log(error) }
-            response.send({
-                message: "member select",
-                data: results
-            });
-    
-            return response;
-        });
+        console.log(res.data);
     }).catch(error =>{
         console.log(error);
     });
+    response.end();
 });
