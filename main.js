@@ -7,6 +7,9 @@ const useragent = require('express-useragent');
 const ejs = require('ejs');
 const mysql = require('mysql2') //npm install mysql2
 const axios = require('axios'); //npm install axios
+const User = require('./user');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 var cors = require('cors');
 
 require('dotenv').config()
@@ -179,9 +182,9 @@ app.get('/game/:game_id',(require,response)=>{
 http://localhost:5000/user_play/user/1
 app.get('/user_play/user/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
-    let sql = `SELECT member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
+    let sql = `SELECT user_play.id AS play_id, member.id AS member_id, member.member_code AS member_code, member.name AS name, member.balance AS balance, 
     user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
-    WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY member.created_at DESC`;
+    WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY user_play.id DESC`;
     connection.query(sql,(error,results)=>{
         if(error){ console.log(error) }
         response.send({
@@ -246,4 +249,75 @@ app.get('/user_play/add/:user_id',(require,response)=>{
         console.log(error);
     });
     response.end();
+});
+
+http://localhost:5000/login/admin
+app.post('/login/admin', async (require, response, next) => {
+    let username = require.body.username;
+    let password = require.body.password;
+
+    let sql = `SELECT * FROM admin WHERE username='${username}' AND status_delete='N' ORDER BY username ASC`;
+    connection.query(sql, async (error,results)=>{
+        try {
+            const data = results;
+            if (data.length !== 1) {
+              const error = new Error('A user with this email could not be found.');
+              error.statusCode = 401;
+              throw error;
+            }
+            const storedUser = data[0];
+            const passwordMatches = await bcrypt.compare(password, storedUser.password);
+            
+            if (!passwordMatches ) {
+              const error = new Error('Wrong password!');
+              error.statusCode = 401;
+              throw error;
+            }
+            const token = jwt.sign(
+                {
+                  username: storedUser.Username,
+                  userId: storedUser.ID,
+                  role: storedUser.Role
+                },
+                'secretfortoken',
+                { expiresIn: '2h' }
+            );
+            response.status(201).json({ token: token, data: storedUser});
+            } catch (err) {
+            if (!err.statusCode) {
+              err.statusCode = 500;
+            }
+            next(err);
+          }
+    });
+   
+});
+
+http://localhost:5000/signup
+app.post('/signup', async (req, res, next) => {
+  const name = req.body.name; //รับDataจากForm
+  const username = req.body.username; //รับDataจากForm
+  const password = req.body.password; //รับDataจากForm
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const userDetails = {
+      name: name,
+      username: username,
+      password: hashedPassword,
+    };
+    let sql =  `INSERT INTO admin (name, username, password, created_at, updated_at) value ('${userDetails.name}','${userDetails.username}','${userDetails.password}',now(), now())`;
+    connection.query(sql,(error,result)=>{
+        if(error){ console.log(error) }
+        res.send({
+            message: "Data created Success",
+        });
+        res.end();
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 });
