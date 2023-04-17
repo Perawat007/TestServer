@@ -7,7 +7,6 @@ const useragent = require('express-useragent');
 const ejs = require('ejs');
 const mysql = require('mysql2') //npm install mysql2
 const axios = require('axios'); //npm install axios
-const User = require('./user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 var cors = require('cors');
