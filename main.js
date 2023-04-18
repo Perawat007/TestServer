@@ -56,7 +56,7 @@ app.get('/list_admin/:admin_id',(require,response)=>{
 
 //http://localhost:5000/list_agents
 app.get('/list_agents',(require,response)=>{
-    let sql = `SELECT id, agent_code, website_name, name, phone, email, username, status FROM agent WHERE status_delete='N' 
+    let sql = `SELECT id, name, username, status FROM agent WHERE status_delete='N' 
     ORDER BY username ASC`;
     connection.query(sql,(error,results) =>{
         if(error){ console.log(error); }
@@ -310,6 +310,57 @@ app.post('/signup', async (req, res, next) => {
         if(error){ console.log(error) }
         res.send({
             message: "Data created Success",
+        });
+        res.end();
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+});
+
+http://localhost:5000/signupAgent
+app.post('/signupAgent', async (req, res, next) => {
+  const name = req.body.name; //รับDataจากForm
+  const username = req.body.username; //รับDataจากForm
+  const password = req.body.password; //รับDataจากForm
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const userDetails = {
+      name: name,
+      username: username,
+      password: hashedPassword,
+    };
+    let sql = `INSERT INTO agent (name, username, password, created_at, updated_at) value ('${userDetails.name}','${userDetails.username}','${userDetails.password}',now(), now())`;
+    connection.query(sql,(error,result)=>{
+        if(error){ console.log(error) }
+        res.send({
+            message: "Data created Success",
+        });
+        res.end();
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+});
+
+//http://localhost:5000/agent/1
+app.put('/agent/:id', async (req, res, next) => {
+  const id = req.params.id;
+  const username = req.body.username;
+  const status = req.body.status;
+  try {
+    let sql = `UPDATE member set username = '${username}', status = '${status}' WHERE id='${id}'`;
+    connection.query(sql,(error,result)=>{
+        if(error){ console.log(error) }
+        res.send({
+            message: "Data Update Success",
         });
         res.end();
     });
