@@ -301,8 +301,6 @@ app.post('/user_play/user_lay/:user_id',(require,response)=>{
     });
 });
 
-
-
 http://localhost:5000/user_play/game/add/1
 //'{"member_id": 1,"member_code": "member001","name": "member001","balance": 0,"bet":10,"win": 10,"tiles": "index1,index2","winline": 1}'
 app.post('/user_play/game/add/:user_id',(require,response)=>{
@@ -509,7 +507,7 @@ app.put('/admin/:id', async (req, res, next) => {
     }
   });
 
-
+//getมาใช้ใน Dashboard
 http://localhost:5000/getallData
 app.get('/getallData', async (require, response, next) => {
     let sqlAdmin = `SELECT id FROM admin WHERE status_delete='N' ORDER BY username ASC`;
