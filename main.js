@@ -301,7 +301,7 @@ app.post('/user_play/user_lay/:user_id',(require,response)=>{
     });
 });
 
-http://localhost:5000/user_play/game/add/1
+http://localhost:5000/user_play/game/add/1  POST LOG MEMBER Play Game
 //'{"member_id": 1,"member_code": "member001","name": "member001","balance": 0,"bet":10,"win": 10,"tiles": "index1,index2","winline": 1}'
 app.post('/user_play/game/add/:user_id',(require,response)=>{
     let user_id = require.params.user_id;
@@ -362,7 +362,7 @@ app.get('/user_play/add/:user_id',(require,response)=>{
     response.end();
 });
 
-http://localhost:5000/login/admin
+http://localhost:5000/login/admin  Login Admin
 app.post('/login/admin', async (require, response, next) => {
     let username = require.body.username;
     let password = require.body.password;
@@ -404,7 +404,7 @@ app.post('/login/admin', async (require, response, next) => {
    
 });
 
-http://localhost:5000/signup
+http://localhost:5000/signup  Add Admin
 app.post('/signup', async (req, res, next) => {
   const name = req.body.name; //รับDataจากForm
   const username = req.body.username; //รับDataจากForm
@@ -433,7 +433,7 @@ app.post('/signup', async (req, res, next) => {
   }
 });
 
-http://localhost:5000/signupAgent
+http://localhost:5000/signupAgent Add Agent
 app.post('/signupAgent', async (req, res, next) => {
   const name = req.body.name; //รับDataจากForm
   const username = req.body.username; //รับDataจากForm
@@ -462,11 +462,12 @@ app.post('/signupAgent', async (req, res, next) => {
   }
 });
 
-//http://localhost:5000/agent/1
+//http://localhost:5000/agent/1  Update Agent
 app.put('/agent/:id', async (req, res, next) => {
   const id = req.params.id;
   const username = req.body.username;
   const status = req.body.status;
+
   try {
     let sql = `UPDATE agent set username = '${username}', status = '${status}' WHERE id='${id}'`;
     connection.query(sql,(error,result)=>{
@@ -484,12 +485,11 @@ app.put('/agent/:id', async (req, res, next) => {
   }
 });
 
-//http://localhost:5000/admin/1
+//http://localhost:5000/admin/1  Update Admin
 app.put('/admin/:id', async (req, res, next) => {
     const id = req.params.id;
     const username = req.body.username;
     const status = req.body.status;
-    console.log("on");
     try {
       let sql = `UPDATE admin set username = '${username}', status = '${status}' WHERE id='${id}'`;
       connection.query(sql,(error,result)=>{
@@ -506,6 +506,77 @@ app.put('/admin/:id', async (req, res, next) => {
       next(err);
     }
   });
+
+  //http://localhost:5000/member/1  Update Member
+app.put('/member/:id', async (req, res, next) => {
+    const id = req.params.id;
+    const member_code = req.body.member_code;
+    const name = req.body.name;
+    const username = req.body.username;
+    const status = req.body.status;
+    const balance = req.body.balance;
+
+    try {
+      let sql = `UPDATE member set member_code = '${member_code}', name = '${name}', username = '${username}', status = '${status}', balance = '${balance}' 
+      WHERE id='${id}'`;
+      connection.query(sql,(error,result)=>{
+          if(error){ console.log(error) }
+          res.send({
+              message: "Data Update Success",
+          });
+          res.end();
+      });
+    } catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  });
+
+  //http://localhost:5000/deleteAdmin/1  Delete Admin
+app.put('/deleteAdmin/:id', async (req, res, next) => {
+    const id = req.params.id;
+    const status_delete = req.body.delete;
+    let sql = `UPDATE admin set status_delete = '${status_delete}' WHERE id='${id}'`;
+     connection.query(sql,(error,result) =>{
+        if(error){ console.log(error); }
+        res.send({
+                message: "Delete Success",
+        });
+        res.end();
+        });
+  });
+
+   //http://localhost:5000/deleteAgent/1  Delete Agent
+app.put('/deleteAgent/:id', async (req, res, next) => {
+    const id = req.params.id;
+    console.log(id);
+    const status_delete = req.body.delete;
+    let sql = `UPDATE agent set status_delete = '${status_delete}' WHERE id='${id}'`;
+     connection.query(sql,(error,result) =>{
+        if(error){ console.log(error); }
+        res.send({
+                message: "Delete Success",
+        });
+        res.end();
+        });
+  });
+
+   //http://localhost:5000/deleteMember/1  Delete Member
+app.put('/deleteMember/:id', async (req, res, next) => {
+    const id = req.params.id;
+    const status_delete = req.body.delete;
+    let sql = `UPDATE member set status_delete = '${status_delete}' WHERE id='${id}'`;
+     connection.query(sql,(error,result) =>{
+        if(error){ console.log(error); }
+        res.send({
+                message: "Delete Success",
+        });
+        res.end();
+        });
+  });
+
 
 //getมาใช้ใน Dashboard
 http://localhost:5000/getallData
