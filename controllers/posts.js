@@ -256,7 +256,7 @@ exports.singUpSubAgent = async (require, response) => {
               else if (gameNameId_1.length !== 0) {
                 for (let i = 0; i < gameNameId_1.length; i++) {
                   let createdPercent = `INSERT INTO percentgame (subagent_id, gamename, img, hold_percentage, our_percentage, monthly_total, monthly) 
-                  value ('${resultidSubAgent[0].id}','${gameNameId_1[i].namegame}','${'/img/thumbs/icontest'+(i+1)+'.png'}','${gameNameId_1[i].PercentValus + '%'}','${90 - gameNameId_1[i].PercentValus + '%'}','${0}',now())`;
+                  value ('${resultidSubAgent[0].id}','${gameNameId_1[i].namegame}','${'/img/thumbs/icontest' + (i + 1) + '.png'}','${gameNameId_1[i].PercentValus + '%'}','${90 - gameNameId_1[i].PercentValus + '%'}','${0}',now())`;
                   try {
                     connection.query(createdPercent, (error, results) => {
                       if (error) { console.log(error) }
@@ -507,4 +507,27 @@ exports.getSubAgentId = async (require, response) => {
     });
     response.end();
   });
+};
+
+exports.getBalance = async (req, res, next) => {
+  let username = 'member001';
+  let sql = `SELECT credit FROM member WHERE username ='${username}' AND status_delete='N' 
+  ORDER BY member_code ASC`;
+  try {
+    connection.query(sql, (error, results) => {
+      if (error) { console.log(error); }
+      else {
+        const balanceUser = parseFloat(results[0].credit);
+        res.send({
+          balance: balanceUser,
+        });
+        res.end();
+      }
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };

@@ -86,8 +86,9 @@ exports.saveTestGame = async (require, response) => {
                         arrayWinLine.push(winlineArrLoop);
                         let sql_insert = `INSERT INTO user_play (member_id, game_id, bet, win, tiles, winline, winstyle, winCount, credit, created_at, game_feespin) 
             value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winlineArrLoop}','${winStyle}','${winCount}','${credit}',now(), '${isWinFreeSpin}')`;
+                        console.log('run')
                         connection.query(sql_insert, (error, result_insert_play) => {
-                            if (error) {
+                            if (!error) {
                                 response.sendStatus(500);
                                 return;
                             } else {
@@ -135,7 +136,7 @@ exports.saveTestGame = async (require, response) => {
                                                                                     response.sendStatus(500);
                                                                                     return;
                                                                                 } else {
-                                                                                    connection.query(select_logdayGame, (error, result_logGameDay) => {
+                                                                                   /* connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                         if (result_commissionDay.length === 0) { //INSERT comgogoldplanet
                                                                                             if (game_id === '1') {
                                                                                                 let sql_insertCommission = `INSERT INTO comgogoldplanet (bet_gogold, win_gogold, day, monthly) 
@@ -199,12 +200,12 @@ exports.saveTestGame = async (require, response) => {
                                                                                                 });
                                                                                             }
                                                                                         }
-                                                                                    });
+                                                                                    });*/
                                                                                 }
                                                                             });
                                                                             // commission----------------------------------------------------------------------------------------------------------------------------//
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                                                                            let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
+                                                                            /*let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
                                                                             connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                 if (result_logGameDay.length === 0) {
                                                                                     if (game_id === '1') {
@@ -371,7 +372,7 @@ exports.saveTestGame = async (require, response) => {
                 // commission----------------------------------------------------------------------------------------------------------------------------//
 
                 // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                let select_logdayGame = `SELECT * FROM logdaygame WHERE game_id = '${game_id}' AND day = '${date}'`;
+                /*let select_logdayGame = `SELECT * FROM logdaygame WHERE game_id = '${game_id}' AND day = '${date}'`;
                 connection.query(select_logdayGame, (error, result_logGameDay) => {
                     if (result_logGameDay.length === 0) {
                         if (game_id === '1') {
@@ -415,11 +416,11 @@ exports.saveTestGame = async (require, response) => {
                             }
                         });
                     }
-                });
+                });*/
                 // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
 
                 connection.query(sql_insert, (error, result_insert_play) => {
-                    if (error) {
+                    if (!error) {
                         response.sendStatus(500);
                         return;
                     } else {
@@ -819,7 +820,7 @@ exports.saveTestGameBuy = async (require, response) => {
                                                                             });
                                                                             // commission----------------------------------------------------------------------------------------------------------------------------//
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                                                                            let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
+                                                                           /* let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
                                                                             connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                 if (result_logGameDay.length === 0) {
                                                                                     if (game_id === '1') {
@@ -859,7 +860,7 @@ exports.saveTestGameBuy = async (require, response) => {
                                                                                         }
                                                                                     });
                                                                                 }
-                                                                            });
+                                                                            });*/
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
                                                                             isWinFreeSpinBuy = false;
                                                                             response.send({
