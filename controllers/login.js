@@ -1,6 +1,7 @@
 const { response } = require("express");
 const mysql = require('mysql2') //npm install mysql2
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const os = require('os');
 require('dotenv').config()
 
@@ -103,9 +104,9 @@ http://localhost:5000/post/authenticate-token
 exports.authenticate = async (req, res) => {
   const authHeader = req.body.token;
   const ip = req.body.ip;
-  const timestampMillis = req.body.timestampMillis;
+  const timestamp = req.body.timestamp;
   const userUsername = "victest2"
-  username = 'member001';
+  let username = 'member001';
   let spl = `SELECT credit FROM member WHERE username ='${username}' AND status_delete='N' 
   ORDER BY member_code ASC`;
   try {
@@ -113,12 +114,11 @@ exports.authenticate = async (req, res) => {
       if (error) { console.log(error) }
       else {
         const balanceUser = parseFloat(results[0].credit);
-        console.log(authHeader, ip, balanceUser);
-        res.status(200).json({
+        res.status(201).json({
           Status: 0,
           Message: "Success",
-          Username: userUsername,
-          Balance: balanceUser
+          Username: "victest2",
+          Balance: 10000
         });
       }
     })
@@ -130,7 +130,7 @@ exports.authenticate = async (req, res) => {
 
 http://localhost:5000/post/balance 
 exports.balanceXO = async (req, res) => {
-  const timestampMillis = req.body.timestampMillis;
+  const timestamp = req.body.timestamp;
   const usernameGame = req.body.username;
   username = 'member001';
   let spl = `SELECT credit FROM member WHERE username ='${username}' AND status_delete='N' 
@@ -143,8 +143,8 @@ exports.balanceXO = async (req, res) => {
         res.status(201).json({
           Status: 0,
           Message: "Success",
-          Username: usernameGame,
-          Balance: balanceUser
+          Username: "victest2",
+          Balance: 10000
         });
       }
     })
@@ -158,7 +158,7 @@ http://localhost:5000/post/bet
 exports.PlaceBetSlotXo = async (req, res) => {
   const id = req.body.id;
   const amount = req.body.amount;
-  const timestampMillis = req.body.timestampMillis;
+  const timestamp = req.body.timestamp;
   const roundid = req.body.roundid;
   const usernameGame = req.body.username;
   const gamecode = req.body.gamecode;
@@ -417,6 +417,73 @@ exports.DepositSlotXo = async (req, res) => {
               Username: usernameGame,
               Balance: balanceNow
             });
+          }
+        });
+      }
+    })
+  } catch (err) {
+    err.statusCode = 500;
+    res.json({ status: "Not Data Request Body." });
+  }
+};
+
+http://localhost:5000/post/authenticate
+exports.MobileauthenticateXoJo = async (req, res) => {
+  const password = req.body.password;
+  const ip = req.body.ip;
+  const timestamp = req.body.timestamp;
+  const userUsername = username
+  let username = 'member001';
+  const token = jwt.sign(
+    {
+      userUsername: userUsername,
+      password: password,
+      timestamp: timestamp,
+      ip: ip
+    },
+    'secretfortoken',
+    { expiresIn: '48h' }
+  );
+  let spl = `SELECT credit FROM member WHERE username ='${username}' AND status_delete='N' 
+  ORDER BY member_code ASC`;
+  try {
+    connection.query(spl, (error, results) => {
+      if (error) { console.log(error) }
+      else {
+        const balanceUser = parseFloat(results[0].credit);
+        res.status(201).json({
+          Status: 0,
+          Token: token,
+          Balance: balanceUser,
+          Message: "Success",
+        });
+      }
+    })
+  } catch (err) {
+    err.statusCode = 500;
+    res.json({ status: "Not Data Request Body." });
+  }
+};
+
+http://localhost:5000/post/seamless/getAppUsername
+exports.GetMobileauthenticateXoJo = async (req, res) => {
+  const productId = req.body.productId;
+  const password = req.body.password;
+  const userUsername = username
+  let username = 'member001';
+  let spl = `SELECT credit FROM member WHERE username ='${username}' AND status_delete='N' 
+  ORDER BY member_code ASC`;
+  try {
+    connection.query(spl, (error, results) => {
+      if (error) { console.log(error) }
+      else {
+        const balanceUser = parseFloat(results[0].credit);
+        res.status(201).json({
+          reqId: "f47e5065-412c-40d1-9e4c-f6c248919509",
+          code: 0,
+          message: "Success",
+          data: {
+            applicationUsername: "TFY1.001CJE2WC"
           }
         });
       }

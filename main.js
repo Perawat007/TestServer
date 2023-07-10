@@ -28,37 +28,59 @@ const connection = mysql.createPool({
     user: process.env.DB_USER,
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD
-  });
- 
+});
+
+
+
+//http://localhost:5000/list_idAgent
+app.get('/testApi', async (require, response) => {
+    response.send({
+        message: 'AllIDAgent',
+        data: results
+    });
+    response.end();
+});
+//http://localhost:5000/list_idAgent
+app.get('/list_idAgent', async (require, response) => {
+    let sql = `SELECT * FROM member WHERE status_delete='N'`;
+    connection.query(sql, async (error, results) => {
+        if (error) { console.log(error); }
+        response.send({
+            data: results
+        });
+        response.end();
+    });
+});
+
 //http://localhost:5000/list_admins
-app.post('/list_admins',auth,async(require,response)=>{
+app.post('/list_admins', auth, async (require, response) => {
     const searchKeyword = require.body.name;
     const pageSize = require.body.pageSize;
     const pageNumber = require.body.pageIndex;
     const offset = (pageNumber - 1) * pageSize;
-    if (searchKeyword === ''){
+    if (searchKeyword === '') {
         let sql = `SELECT id, name, username, status, contact_number FROM admin WHERE status_delete='N' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
             const totalCount = `SELECT COUNT(*) as count FROM admin WHERE status_delete='N' `
-            connection.query(totalCount,(error,res) =>{
-                if(error){ console.log(error); }
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
                 response.send({
-                message: 'adminNOSearch',
-                data: results,
-                total: res[0].count
-            });
-    
-            response.end();
+                    message: 'adminNOSearch',
+                    data: results,
+                    total: res[0].count
+                });
+
+                response.end();
             });
         });
-    }else{
+    } else {
         let sql = `SELECT id, name, username, status, contact_number  FROM admin WHERE status_delete='N' AND 
         username LIKE '%${searchKeyword}%' OR name LIKE '%${searchKeyword}%' OR id LIKE '%${searchKeyword}%' OR contact_number LIKE '%${searchKeyword}%'
         LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
-                response.send({
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            response.send({
                 message: 'adminSearch',
                 data: results,
                 total: results.length
@@ -69,26 +91,13 @@ app.post('/list_admins',auth,async(require,response)=>{
 });
 
 
-//http://localhost:5000/list_idAgent
-app.get('/list_idAgent',async (require,response)=>{
-    let sql = `SELECT id FROM agent WHERE status_delete='N'`;
-    connection.query(sql,async(error,results) =>{
-        if(error){ console.log(error); }
-            response.send({
-            message: 'AllIDAgent',
-            data: results
-        });
-        response.end();
-        });
-    });
-
 //http://localhost:5000/list_admin/1
-app.get('/list_admin/:admin_id',(require,response)=>{
+app.get('/list_admin/:admin_id', (require, response) => {
     let admin_id = require.params.admin_id;
     let sql = `SELECT id, name, username, status FROM admin WHERE id='${admin_id}' AND status_delete='N' ORDER BY username ASC`;
-    connection.query(sql,(error,results)=>{
-        
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+
+        if (error) { console.log(error) }
         response.send({
             message: "admin select",
             data: results
@@ -99,35 +108,35 @@ app.get('/list_admin/:admin_id',(require,response)=>{
 });
 
 //http://localhost:5000/list_agents
-app.post('/list_agents',auth,(require,response)=>{
+app.post('/list_agents', auth, (require, response) => {
     const searchKeyword = require.body.name;
     const pageSize = require.body.pageSize;
     const pageNumber = require.body.pageIndex;
     const offset = (pageNumber - 1) * pageSize;
 
-    if (searchKeyword === ''){
+    if (searchKeyword === '') {
         let sql = `SELECT id, name, username, status, contact_number, credit FROM agent WHERE status_delete='N' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
             const totalCount = `SELECT COUNT(*) as count FROM agent WHERE status_delete='N'`
-            connection.query(totalCount,(error,res) =>{
-                if(error){ console.log(error); }
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
                 response.send({
-                message: 'agentNoSearch',
-                data: results,
-                total: res[0].count
-            });
-    
-            response.end();
+                    message: 'agentNoSearch',
+                    data: results,
+                    total: res[0].count
+                });
+
+                response.end();
             });
         });
-    }else{
+    } else {
         let sql = `SELECT id, name, username, status, contact_number, credit FROM agent WHERE status_delete='N' AND 
         username LIKE '%${searchKeyword}%' OR name LIKE '%${searchKeyword}%' OR id LIKE '%${searchKeyword}%' OR contact_number LIKE '%${searchKeyword}%'
         LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
-                response.send({
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            response.send({
                 message: 'agent_Search',
                 data: results,
                 total: results.length
@@ -138,12 +147,12 @@ app.post('/list_agents',auth,(require,response)=>{
 });
 
 //http://localhost:5000/list_agent/1
-app.get('/list_agent/:agent_id',(require,response)=>{
+app.get('/list_agent/:agent_id', (require, response) => {
     let agent_id = require.params.agent_id;
     let sql = `SELECT id, name, username, contact_number, credit, status FROM agent WHERE id='${agent_id}' AND status_delete='N' 
     ORDER BY username ASC`;
-    connection.query(sql,(error,results)=>{
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error) }
         response.send({
             message: "agent select",
             data: results
@@ -154,12 +163,12 @@ app.get('/list_agent/:agent_id',(require,response)=>{
 });
 
 //http://localhost:5000/list_users/agent/1
-app.get('/list_users/agent/:agent_id',(require,response)=>{
+app.get('/list_users/agent/:agent_id', (require, response) => {
     let agent_id = require.params.agent_id;
     let sql = `SELECT id, member_code, name, username, credit, status FROM member WHERE agent_id='${agent_id}' AND status_delete='N' 
     ORDER BY member_code ASC`;
-    connection.query(sql,(error,results) =>{
-        if(error){ console.log(error); }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error); }
         response.send({
             message: 'agent member all',
             data: results
@@ -170,36 +179,36 @@ app.get('/list_users/agent/:agent_id',(require,response)=>{
 });
 
 //http://localhost:5000/list_users
-app.post('/list_users',auth,(require,response)=>{
+app.post('/list_users', auth, (require, response) => {
     const searchKeyword = require.body.name;
     const pageSize = require.body.pageSize;
     const pageNumber = require.body.pageIndex;
     const offset = (pageNumber - 1) * pageSize;
 
-   if (searchKeyword === ""){
+    if (searchKeyword === "") {
         let sql = `SELECT id, username_agent, member_code, name, username, credit, status, created_at FROM member WHERE status_delete='N' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
-            else{
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            else {
                 const totalCount = `SELECT COUNT(*) as count FROM member WHERE status_delete='N'`
-                connection.query(totalCount,(error,res) =>{
-                    if(error){ console.log(error); }
+                connection.query(totalCount, (error, res) => {
+                    if (error) { console.log(error); }
                     response.send({
-                    message: 'memberSearchAll',
-                    data: results,
-                    total: res[0].count
-                });
-        
-                response.end();
+                        message: 'memberSearchAll',
+                        data: results,
+                        total: res[0].count
+                    });
+
+                    response.end();
                 });
             }
         });
-    }else{
+    } else {
         let sql = `SELECT id, username_agent, member_code, name, username, credit, status, created_at FROM member WHERE status_delete='N' 
         AND username LIKE '%${searchKeyword}%' OR name LIKE '%${searchKeyword}%' OR username_agent LIKE '%${searchKeyword}%' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,async(error,results) =>{
-            if(error){ console.log(error); }
-                response.send({
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            response.send({
                 message: 'memberSearch',
                 data: results,
                 total: results.length
@@ -210,12 +219,12 @@ app.post('/list_users',auth,(require,response)=>{
 });
 
 http://localhost:5000/list_user/1
-app.get('/list_user/:user_id',(require,response)=>{
+app.get('/list_user/:user_id', (require, response) => {
     let user_id = require.params.user_id;
     let sql = `SELECT id, member_code, name, username, credit, status FROM member WHERE id='${user_id}' AND status_delete='N' 
     ORDER BY member_code ASC`;
-    connection.query(sql,(error,results)=>{
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error) }
         response.send({
             message: 'member id',
             data: results
@@ -226,27 +235,27 @@ app.get('/list_user/:user_id',(require,response)=>{
 });
 
 http://localhost:5000/list_userGame/1 
-app.get('/list_userGame/:user_id',(require,response)=>{
+app.get('/list_userGame/:user_id', (require, response) => {
     let user_id = require.params.user_id;
     let sql = `SELECT username, credit, bet_latest FROM member WHERE id='${user_id}' AND status_delete='N' 
     ORDER BY member_code ASC`;
-    connection.query(sql,(error,results)=>{
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error) }
         console.log(results);
         response.json(results[0]);
     });
 });
 
 
-app.post('/user/add',(require,response)=>{
+app.post('/user/add', (require, response) => {
     let member_code = require.member_code;
     let name = require.name;
     let username = require.username;
     let password = require.password;
     let sql = `SELECT id, member_code, name, username, credit, status FROM member WHERE id='${user_id}' AND status_delete='N' 
     ORDER BY member_code ASC`;
-    connection.query(sql,(error,results)=>{
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error) }
         response.send({
             message: "member select",
             data: results
@@ -257,10 +266,10 @@ app.post('/user/add',(require,response)=>{
 });
 
 http://localhost:5000/games
-app.get('/games',(require,response)=>{
+app.get('/games', (require, response) => {
     let sql = `SELECT id, game_name, image, status FROM game WHERE status_delete='N' ORDER BY game_name ASC`;
-    connection.query(sql,(error,results) =>{
-        if(error){ console.log(error); }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error); }
         response.send({
             message: 'game all',
             data: results
@@ -271,11 +280,11 @@ app.get('/games',(require,response)=>{
 });
 
 http://localhost:5000/game/1
-app.get('/game/:game_id',(require,response)=>{
+app.get('/game/:game_id', (require, response) => {
     let game_id = require.params.game_id;
     let sql = `SELECT id, game_name, image, status FROM game WHERE id='${game_id}' AND status_delete='N' ORDER BY game_name ASC`;
-    connection.query(sql,(error,results) =>{
-        if(error){ console.log(error); }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error); }
         response.send({
             message: 'game select',
             data: results
@@ -286,13 +295,13 @@ app.get('/game/:game_id',(require,response)=>{
 });
 
 http://localhost:5000/user_play/user/1
-app.get('/user_play/user/:user_id',(require,response)=>{
+app.get('/user_play/user/:user_id', (require, response) => {
     let user_id = require.params.user_id;
     let sql = `SELECT user_play.id AS play_id, member.id AS member_id, member.member_code AS member_code, member.name AS name, member.credit AS credit, 
     user_play.bet AS bet, user_play.win AS win, user_play.tiles AS tiles, winline AS winline FROM user_play, member 
     WHERE user_play.member_id=member.id AND member.id='${user_id}' AND member.status='Y' ORDER BY user_play.id DESC`;
-    connection.query(sql,(error,results)=>{
-        if(error){ console.log(error) }
+    connection.query(sql, (error, results) => {
+        if (error) { console.log(error) }
         response.send({
             message: "member play",
             data: results
@@ -303,7 +312,7 @@ app.get('/user_play/user/:user_id',(require,response)=>{
 });
 
 http://localhost:5000/user_play/user_lay/1
-app.post('/user_play/user_lay/:user_id',(require,response)=>{
+app.post('/user_play/user_lay/:user_id', (require, response) => {
     let user_id = require.params.user_id;
     const pageSize = require.body.pageSize;
     const pageNumber = require.body.pageIndex;
@@ -311,19 +320,19 @@ app.post('/user_play/user_lay/:user_id',(require,response)=>{
 
     let sql = `SELECT id, member_id, game_id, bet, credit, win, winline, created_at FROM user_play
     WHERE member_id = '${user_id}' LIMIT ${pageSize} OFFSET ${offset}`;
-    connection.query(sql,(error,results)=>{
+    connection.query(sql, (error, results) => {
         const dataLog = results;
-        if(error){ console.log(error) }
+        if (error) { console.log(error) }
         const totalCount = `SELECT COUNT(*) as count FROM user_play WHERE member_id = '${user_id}'`
-        connection.query(totalCount,(error,res) =>{
-            if(error){ console.log(error); }
+        connection.query(totalCount, (error, res) => {
+            if (error) { console.log(error); }
             response.send({
-            message: 'user_playSearch',
-            data: dataLog,
-            total: res[0].count
-        });
+                message: 'user_playSearch',
+                data: dataLog,
+                total: res[0].count
+            });
 
-        response.end();
+            response.end();
         });
     });
 });
@@ -334,41 +343,41 @@ app.post('/login/admin', async (require, response, next) => {
     let password = require.body.password;
 
     let sql = `SELECT * FROM admin WHERE username='${username}' AND status_delete='N' ORDER BY username ASC`;
-    connection.query(sql, async (error,results)=>{
+    connection.query(sql, async (error, results) => {
         try {
             const data = results;
             if (data.length !== 1) {
-              const error = new Error('A user with this email could not be found.');
-              error.statusCode = 401;
-              throw error;
+                const error = new Error('A user with this email could not be found.');
+                error.statusCode = 401;
+                throw error;
             }
             const storedUser = data[0];
             const passwordMatches = await bcrypt.compare(password, storedUser.password);
-            
-            if (!passwordMatches ) {
-              const error = new Error('Wrong password!');
-              error.statusCode = 401;
-              throw error;
+
+            if (!passwordMatches) {
+                const error = new Error('Wrong password!');
+                error.statusCode = 401;
+                throw error;
             }
 
             const token = jwt.sign(
                 {
-                  username: storedUser.username,
-                  userId: storedUser.id,
-                  name: storedUser.name
+                    username: storedUser.username,
+                    userId: storedUser.id,
+                    name: storedUser.name
                 },
                 'secretfortoken',
                 { expiresIn: '2h' }
             );
-            response.status(201).json({ token: token, data: storedUser});
-            } catch (err) {
+            response.status(201).json({ token: token, data: storedUser });
+        } catch (err) {
             if (!err.statusCode) {
-              err.statusCode = 500;
+                err.statusCode = 500;
             }
             next(err);
-          }
+        }
     });
-   
+
 });
 
 http://localhost:5000/login/agent  Login Agent
@@ -377,40 +386,40 @@ app.post('/login/agent', async (require, response, next) => {
     let password = require.body.password;
 
     let sql = `SELECT * FROM agent WHERE username='${username}' AND status_delete='N' ORDER BY username ASC`;
-    connection.query(sql, async (error,results)=>{
+    connection.query(sql, async (error, results) => {
         try {
             const data = results;
             if (data.length !== 1) {
-              const error = new Error('A user with this email could not be found.');
-              error.statusCode = 401;
-              throw error;
+                const error = new Error('A user with this email could not be found.');
+                error.statusCode = 401;
+                throw error;
             }
             const storedUser = data[0];
             const passwordMatches = await bcrypt.compare(password, storedUser.password);
-            
-            if (!passwordMatches ) {
-              const error = new Error('Wrong password!');
-              error.statusCode = 401;
-              throw error;
+
+            if (!passwordMatches) {
+                const error = new Error('Wrong password!');
+                error.statusCode = 401;
+                throw error;
             }
             const token = jwt.sign(
                 {
-                  username: storedUser.username,
-                  userId: storedUser.id,
-                  name: storedUser.name
+                    username: storedUser.username,
+                    userId: storedUser.id,
+                    name: storedUser.name
                 },
                 'secretfortoken',
                 { expiresIn: '2h' }
             );
-            response.status(201).json({ token: token, data: storedUser});
-            } catch (err) {
+            response.status(201).json({ token: token, data: storedUser });
+        } catch (err) {
             if (!err.statusCode) {
-              err.statusCode = 500;
+                err.statusCode = 500;
             }
             next(err);
-          }
+        }
     });
-   
+
 });
 
 http://localhost:5000/login/member  Login Member
@@ -422,12 +431,12 @@ app.post('/login/member', async (require, response, next) => {
     //start check ip address
     const networkInterfaces = os.networkInterfaces();
     const ipAddress = Object.keys(networkInterfaces).reduce((acc, interfaceName) => {
-    const interfaceInfo = networkInterfaces[interfaceName];
-    const ipv4Info = interfaceInfo.find(info => info.family === 'IPv4' && !info.internal);
-    if (ipv4Info) {
-      acc = ipv4Info.address;
-    }
-    return acc;
+        const interfaceInfo = networkInterfaces[interfaceName];
+        const ipv4Info = interfaceInfo.find(info => info.family === 'IPv4' && !info.internal);
+        if (ipv4Info) {
+            acc = ipv4Info.address;
+        }
+        return acc;
     }, '');
     // end check ip address
 
@@ -435,36 +444,36 @@ app.post('/login/member', async (require, response, next) => {
     const userAgent = require.headers['user-agent'];
     let browser;
     if (userAgent.includes('Chrome')) {
-    browser = 'Google Chrome';
+        browser = 'Google Chrome';
     } else if (userAgent.indexOf('Firefox') > -1) {
-    browser = 'Mozilla Firefox';
+        browser = 'Mozilla Firefox';
     } else if (userAgent.indexOf('Safari') > -1) {
-    browser = 'Apple Safari';
+        browser = 'Apple Safari';
     } else if (userAgent.indexOf('Opera') > -1) {
-    browser = 'Opera';
+        browser = 'Opera';
     } else if (userAgent.indexOf('Edg') > -1) {
-    browser = 'Microsoft Edge';
+        browser = 'Microsoft Edge';
     } else if (userAgent.indexOf('Trident') > -1) {
-    browser = 'Microsoft Internet Explorer';
+        browser = 'Microsoft Internet Explorer';
     }
-    else{
-    browser = 'Google Chrome';
+    else {
+        browser = 'Google Chrome';
     }
     // end check ip Browser
 
     let browserName = require.body.browserName;
     let sql = `SELECT id, credit, name, username, password FROM member WHERE username='${username}' AND status_delete='N' ORDER BY username ASC`;
-    connection.query(sql, async (error,results)=>{
+    connection.query(sql, async (error, results) => {
         try {
             let update = `UPDATE member set ip_address = '${ipAddress}',browserlogin = '${browser}' WHERE id='${results[0].id}'`;
-            connection.query(update, async (error,results)=>{
-                if(error){ console.log(error) }
+            connection.query(update, async (error, results) => {
+                if (error) { console.log(error) }
             })
             const data = results;
             if (data.length !== 1) {
-              const error = new Error('A user with this email could not be found.');
-              error.statusCode = 401;
-              throw error;
+                const error = new Error('A user with this email could not be found.');
+                error.statusCode = 401;
+                throw error;
             }
             const storedUser = data[0];
 
@@ -474,218 +483,218 @@ app.post('/login/member', async (require, response, next) => {
             }
             const token = jwt.sign(
                 {
-                  id: storedUser.id,
-                  username: storedUser.username,
-                  credit: storedUser.credit,
-                  passwordCode : hashedPassword
+                    id: storedUser.id,
+                    username: storedUser.username,
+                    credit: storedUser.credit,
+                    passwordCode: hashedPassword
                 },
                 'secretfortoken',
                 { expiresIn: '2h' }
             );
-            response.status(201).json({ token: token});
-            } catch (err) {
+            response.status(201).json({ token: token });
+        } catch (err) {
             if (!err.statusCode) {
-              err.statusCode = 500;
+                err.statusCode = 500;
             }
             next(err);
-          }
+        }
     });
-   
+
 });
 
 http://localhost:5000/signup  Add Admin
 app.post('/signup', async (req, res, next) => {
-  const name = req.body.name; //รับDataจากForm
-  const username = req.body.username; //รับDataจากForm
-  const password = req.body.password; //รับDataจากForm
-  const contact_number = req.body.contact_number
-  let sql_check = `SELECT * FROM admin WHERE username='${username}' ORDER BY username ASC`;
-  connection.query(sql_check, async (error,results)=>{
-    try {
-        const data = results;
-        if (data.length !== 1) {
-            const hashedPassword = await bcrypt.hash(password, 12);
-            const userDetails = {
-              name: name,
-              username: username,
-              password: hashedPassword,
-            };
-            let sql =  `INSERT INTO admin (name, username, password, contact_number, created_at, updated_at)
+    const name = req.body.name; //รับDataจากForm
+    const username = req.body.username; //รับDataจากForm
+    const password = req.body.password; //รับDataจากForm
+    const contact_number = req.body.contact_number
+    let sql_check = `SELECT * FROM admin WHERE username='${username}' ORDER BY username ASC`;
+    connection.query(sql_check, async (error, results) => {
+        try {
+            const data = results;
+            if (data.length !== 1) {
+                const hashedPassword = await bcrypt.hash(password, 12);
+                const userDetails = {
+                    name: name,
+                    username: username,
+                    password: hashedPassword,
+                };
+                let sql = `INSERT INTO admin (name, username, password, contact_number, created_at, updated_at)
             value ('${userDetails.name}','${userDetails.username}','${userDetails.password}','${contact_number}',now(), now())`;
-            connection.query(sql,(error,result)=>{
-                if(error){ console.log(error) }
+                connection.query(sql, (error, result) => {
+                    if (error) { console.log(error) }
+                    res.send({
+                        message: "Data created Success"
+                    });
+                    res.end();
+                });
+            }
+            else {
                 res.send({
-                    message: "Data created Success"
+                    message: "Data Creates False"
                 });
                 res.end();
-            });
+            }
+        } catch (err) {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         }
-        else{
-            res.send({
-                message: "Data Creates False"
-            });
-            res.end();
-        }
-      } catch (err) {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      }
-  })
+    })
 });
 
 http://localhost:5000/signupAgent Add Agent
 app.post('/signupAgent', async (req, res, next) => {
-  const name = req.body.name; //รับDataจากForm
-  const username = req.body.username; //รับDataจากForm
-  const password = req.body.password; //รับDataจากForm
-  const contact_number = req.body.contact_number
-  const credit = req.body.credit;
+    const name = req.body.name; //รับDataจากForm
+    const username = req.body.username; //รับDataจากForm
+    const password = req.body.password; //รับDataจากForm
+    const contact_number = req.body.contact_number
+    const credit = req.body.credit;
 
-  let sql_check = `SELECT * FROM agent WHERE username='${username}' ORDER BY username ASC`;
-  connection.query(sql_check, async (error,results)=>{
-    try {
-        const data = results;
-        if (data.length !== 1) {
-            const hashedPassword = await bcrypt.hash(password, 12);
-            const userDetails = {
-              name: name,
-              username: username,
-              password: hashedPassword,
-            };
-            let sql = `INSERT INTO agent (name, username, password, contact_number, credit, created_at, updated_at) 
+    let sql_check = `SELECT * FROM agent WHERE username='${username}' ORDER BY username ASC`;
+    connection.query(sql_check, async (error, results) => {
+        try {
+            const data = results;
+            if (data.length !== 1) {
+                const hashedPassword = await bcrypt.hash(password, 12);
+                const userDetails = {
+                    name: name,
+                    username: username,
+                    password: hashedPassword,
+                };
+                let sql = `INSERT INTO agent (name, username, password, contact_number, credit, created_at, updated_at) 
             value ('${userDetails.name}','${userDetails.username}','${userDetails.password}','${contact_number}','${credit}',now(), now())`;
-            connection.query(sql,(error,result)=>{
-                if(error){ console.log(error) }
+                connection.query(sql, (error, result) => {
+                    if (error) { console.log(error) }
+                    res.send({
+                        message: "Data created Success"
+                    });
+                    res.end();
+                });
+            }
+            else {
                 res.send({
-                    message: "Data created Success"
+                    message: "Data Creates False"
                 });
                 res.end();
-            });
+            }
+        } catch (err) {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         }
-        else{
-            res.send({
-                message: "Data Creates False"
-            });
-            res.end();
-        }
-      } catch (err) {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      }
-  })
+    })
 });
 
 http://localhost:5000/signupMember Add Member
 app.post('/signupMember', async (req, res, next) => {
-  const agent_id = req.body.agent_id;
-  const member_code = req.body.member_code; //รับDataจากForm
-  const name = req.body.name; 
-  const username = req.body.username; 
-  const password = req.body.password;
-  const credit = req.body.credit;
-  const hashedPassword = md5(password);
-  let sql_check = `SELECT * FROM member WHERE username='${username}' ORDER BY username ASC`;
-  connection.query(sql_check, async (error,results)=>{
-    try {
-        const data = results;
-        if (data.length !== 1 || data.length < 1) {
-            let sql_agent= `SELECT username FROM agent WHERE id='${agent_id}'`;
-            connection.query(sql_agent,(error,usernameAgent)=>{
-                if(error){ console.log(error) }
-                else{
-                //const hashedPassword = await bcrypt.hash(password, 12);
-                 let sql = `INSERT INTO member (agent_id, username_agent, member_code, name, username, password, credit, created_at, updated_at) 
+    const agent_id = req.body.agent_id;
+    const member_code = req.body.member_code; //รับDataจากForm
+    const name = req.body.name;
+    const username = req.body.username;
+    const password = req.body.password;
+    const credit = req.body.credit;
+    const hashedPassword = md5(password);
+    let sql_check = `SELECT * FROM member WHERE username='${username}' ORDER BY username ASC`;
+    connection.query(sql_check, async (error, results) => {
+        try {
+            const data = results;
+            if (data.length !== 1 || data.length < 1) {
+                let sql_agent = `SELECT username FROM agent WHERE id='${agent_id}'`;
+                connection.query(sql_agent, (error, usernameAgent) => {
+                    if (error) { console.log(error) }
+                    else {
+                        //const hashedPassword = await bcrypt.hash(password, 12);
+                        let sql = `INSERT INTO member (agent_id, username_agent, member_code, name, username, password, credit, created_at, updated_at) 
                     value ('${agent_id}','${usernameAgent[0].username}','${member_code}','${name}','${username}','${hashedPassword}','${credit}',now(), now())`;
-                    connection.query(sql,(error,result)=>{
-                    if(error){ console.log(error) }
-                    res.send({
-                    message: "Data created Success"
-                    });
+                        connection.query(sql, (error, result) => {
+                            if (error) { console.log(error) }
+                            res.send({
+                                message: "Data created Success"
+                            });
+                            res.end();
+                        });
+                    }
+                });
+            }
+            else {
+                res.send({
+                    message: "Data Creates False"
+                });
                 res.end();
-            });
-                }
-            });
+            }
+        } catch (err) {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         }
-        else{
-            res.send({
-                message: "Data Creates False"
-            });
-            res.end();
-        }
-      } catch (err) {
-        if (!err.statusCode) {
-          err.statusCode = 500;
-        }
-        next(err);
-      }
-  })
+    })
 });
 
 //http://localhost:5000/agent/1  Update Agent
 app.put('/agent/:id', async (req, res, next) => {
-  const id = req.params.id;
-  const idedit = req.body.idedit;
-  const username = req.body.username;
-  const password = req.body.password;
-  const name = req.body.name;
-  const status = req.body.status;
-  const contact_number = req.body.contact_number;
-  const credit = req.body.credit;
-  
-  try {
-    let sql_before= `SELECT * FROM agent WHERE id ='${id}' ORDER BY username ASC`;
-    connection.query(sql_before, async(error,resultBefore)=>{
-      if(error){ console.log(error) }
-      else{
-        if (password === ''){
-            let sql = `UPDATE agent set username = '${username}', name = '${name}', status = '${status}', contact_number = '${contact_number}', credit = '${credit}'  WHERE id='${id}'`;
-            connection.query(sql, (error,result)=>{
-            if(error){ console.log(error) }
-            else{
-                let sql_before= `INSERT INTO logeditagent (edittype, idedit, agentid, name, editbefore, editafter, created_at) value 
-                ('admin','${idedit}','${id}','${name}','${'name : '+ resultBefore[0].name+ ' , ' + 'status : '+ resultBefore[0].status + ' , ' +'contact_number : ' + resultBefore[0].contact_number}
-                ','${'name : '+ name +' , ' + 'status : '+ status +' , '+'contact_number : ' + contact_number}',now())`;
-                connection.query(sql_before,(error,resultAfter) =>{
-                    if(error){ console.log(error); }
-                    res.send({
-                            message: "Data Update Success",
+    const id = req.params.id;
+    const idedit = req.body.idedit;
+    const username = req.body.username;
+    const password = req.body.password;
+    const name = req.body.name;
+    const status = req.body.status;
+    const contact_number = req.body.contact_number;
+    const credit = req.body.credit;
+
+    try {
+        let sql_before = `SELECT * FROM agent WHERE id ='${id}' ORDER BY username ASC`;
+        connection.query(sql_before, async (error, resultBefore) => {
+            if (error) { console.log(error) }
+            else {
+                if (password === '') {
+                    let sql = `UPDATE agent set username = '${username}', name = '${name}', status = '${status}', contact_number = '${contact_number}', credit = '${credit}'  WHERE id='${id}'`;
+                    connection.query(sql, (error, result) => {
+                        if (error) { console.log(error) }
+                        else {
+                            let sql_before = `INSERT INTO logeditagent (edittype, idedit, agentid, name, editbefore, editafter, created_at) value 
+                ('admin','${idedit}','${id}','${name}','${'name : ' + resultBefore[0].name + ' , ' + 'status : ' + resultBefore[0].status + ' , ' + 'contact_number : ' + resultBefore[0].contact_number}
+                ','${'name : ' + name + ' , ' + 'status : ' + status + ' , ' + 'contact_number : ' + contact_number}',now())`;
+                            connection.query(sql_before, (error, resultAfter) => {
+                                if (error) { console.log(error); }
+                                res.send({
+                                    message: "Data Update Success",
+                                });
+                                res.end();
+                            });
+                        }
                     });
-                    res.end();
-                });
-            }
-            });
-        }else{
-            const hashedPassword = await bcrypt.hash(password, 12);
-            let sql = `UPDATE agent set 
+                } else {
+                    const hashedPassword = await bcrypt.hash(password, 12);
+                    let sql = `UPDATE agent set 
             username = '${username}', name = '${name}', status = '${status}', contact_number = '${contact_number}', credit = '${credit}', password = '${hashedPassword}' WHERE id='${id}'`;
-            connection.query(sql,(error,result)=>{
-            if(error){ console.log(error) }
-            else{
-                let sql_before= `INSERT INTO logeditagent (edittype, idedit, agentid, name, editbefore, editafter, created_at) value 
-                ('admin','${idedit}','${id}','${name}','${'name : '+ resultBefore[0].name+ ' , ' + 'status : '+ resultBefore[0].status + ' , ' +'contact_number : ' + resultBefore[0].contact_number}
-                ','${'name : '+ name +' , ' + 'status : '+ status +' , '+'contact_number : ' + contact_number}',now())`;
-                connection.query(sql_before,(error,resultAfter) =>{
-                    if(error){ console.log(error); }
-                    res.send({
-                            message: "Data Update Success",
+                    connection.query(sql, (error, result) => {
+                        if (error) { console.log(error) }
+                        else {
+                            let sql_before = `INSERT INTO logeditagent (edittype, idedit, agentid, name, editbefore, editafter, created_at) value 
+                ('admin','${idedit}','${id}','${name}','${'name : ' + resultBefore[0].name + ' , ' + 'status : ' + resultBefore[0].status + ' , ' + 'contact_number : ' + resultBefore[0].contact_number}
+                ','${'name : ' + name + ' , ' + 'status : ' + status + ' , ' + 'contact_number : ' + contact_number}',now())`;
+                            connection.query(sql_before, (error, resultAfter) => {
+                                if (error) { console.log(error); }
+                                res.send({
+                                    message: "Data Update Success",
+                                });
+                                res.end();
+                            });
+                        }
                     });
-                    res.end();
-                });
+                }
             }
-            });
+        });
+    } catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
         }
-      }
-  });
-} catch (err) {
-  if (!err.statusCode) {
-    err.statusCode = 500;
-  }
-  next(err);
-}
+        next(err);
+    }
 
 });
 
@@ -697,38 +706,38 @@ app.put('/admin/:id', async (req, res, next) => {
     const name = req.body.name;
     const status = req.body.status;
     const contact_number = req.body.contact_number;
-      try {
-        let sql_before= `SELECT * FROM admin WHERE id ='${id}' ORDER BY username ASC`;
-        connection.query(sql_before,(error,resultBefore)=>{
-          if(error){ console.log(error) }
-          else{
-            let sql = `UPDATE admin set username = '${username}',name = '${name}', status = '${status}', contact_number = '${contact_number}' WHERE id='${id}'`;
-              connection.query(sql,(error,result)=>{
-              if(error){ console.log(error) }
-              else{
-                  let sql_before= `INSERT INTO logeditadmin (edittype, idedit, adminid, name, editbefore, editafter, created_at) value 
-                  ('admin','${idedit}','${id}','${name}','${'name : '+ resultBefore[0].name+ ' , ' + 'status : '+ resultBefore[0].status + ' , ' +'contact_number : ' + resultBefore[0].contact_number}
-                  ','${'name : '+ name +' , ' + 'status : '+ status +' , '+'contact_number : ' + contact_number}',now())`;
-                  connection.query(sql_before,(error,resultAfter) =>{
-                      if(error){ console.log(error); }
-                      res.send({
-                              message: "Data Update Success",
-                      });
-                      res.end();
-                  });
-              }
-              });
-          }
-      });
+    try {
+        let sql_before = `SELECT * FROM admin WHERE id ='${id}' ORDER BY username ASC`;
+        connection.query(sql_before, (error, resultBefore) => {
+            if (error) { console.log(error) }
+            else {
+                let sql = `UPDATE admin set username = '${username}',name = '${name}', status = '${status}', contact_number = '${contact_number}' WHERE id='${id}'`;
+                connection.query(sql, (error, result) => {
+                    if (error) { console.log(error) }
+                    else {
+                        let sql_before = `INSERT INTO logeditadmin (edittype, idedit, adminid, name, editbefore, editafter, created_at) value 
+                  ('admin','${idedit}','${id}','${name}','${'name : ' + resultBefore[0].name + ' , ' + 'status : ' + resultBefore[0].status + ' , ' + 'contact_number : ' + resultBefore[0].contact_number}
+                  ','${'name : ' + name + ' , ' + 'status : ' + status + ' , ' + 'contact_number : ' + contact_number}',now())`;
+                        connection.query(sql_before, (error, resultAfter) => {
+                            if (error) { console.log(error); }
+                            res.send({
+                                message: "Data Update Success",
+                            });
+                            res.end();
+                        });
+                    }
+                });
+            }
+        });
     } catch (err) {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     }
-  });
+});
 
-  //http://localhost:5000/member/1  Update Member
+//http://localhost:5000/member/1  Update Member
 app.put('/member/:id', async (req, res, next) => {
     const id = req.params.id;
     const edittype = req.body.edittype;
@@ -737,132 +746,132 @@ app.put('/member/:id', async (req, res, next) => {
     const name = req.body.name;
     const username = req.body.username;
     const status = req.body.status;
-    const credit = req.body.credit; 
+    const credit = req.body.credit;
     console.log(req.body.idedit)
     try {
-      let sql_before= `SELECT * FROM member WHERE id ='${id}' ORDER BY username ASC`;
-      connection.query(sql_before,(error,resultBefore)=>{
-        if(error){ console.log(error) }
-        else{
-            let sql = `UPDATE member set member_code = '${member_code}', name = '${name}', username = '${username}', status = '${status}', credit = '${credit}' 
+        let sql_before = `SELECT * FROM member WHERE id ='${id}' ORDER BY username ASC`;
+        connection.query(sql_before, (error, resultBefore) => {
+            if (error) { console.log(error) }
+            else {
+                let sql = `UPDATE member set member_code = '${member_code}', name = '${name}', username = '${username}', status = '${status}', credit = '${credit}' 
         WHERE id='${id}'`;
-            connection.query(sql,(error,result)=>{
-            if(error){ console.log(error) }
-            else{
+                connection.query(sql, (error, result) => {
+                    if (error) { console.log(error) }
+                    else {
 
-                let sql_before= `INSERT INTO logedit (edittype, idedit, idmember, name, editbefore, editafter, created_at) value 
-                ('${edittype}','${idedit}','${id}','${name}','${'member_code : '+ resultBefore[0].member_code+ ' , ' + 'status : '+ resultBefore[0].status + ' , ' +'credit : ' + resultBefore[0].credit}
-                ','${'member_code : '+ member_code +' , ' + 'status : '+ status +' , '+'credit : ' + credit}',now())`;
+                        let sql_before = `INSERT INTO logedit (edittype, idedit, idmember, name, editbefore, editafter, created_at) value 
+                ('${edittype}','${idedit}','${id}','${name}','${'member_code : ' + resultBefore[0].member_code + ' , ' + 'status : ' + resultBefore[0].status + ' , ' + 'credit : ' + resultBefore[0].credit}
+                ','${'member_code : ' + member_code + ' , ' + 'status : ' + status + ' , ' + 'credit : ' + credit}',now())`;
 
-                connection.query(sql_before,(error,resultAfter) =>{
-                    if(error){ console.log(error); }
-                    res.send({
-                            message: "Data Update Success",
-                    });
-                    res.end();
+                        connection.query(sql_before, (error, resultAfter) => {
+                            if (error) { console.log(error); }
+                            res.send({
+                                message: "Data Update Success",
+                            });
+                            res.end();
+                        });
+                    }
                 });
             }
-            });
-        }
-    });
+        });
     } catch (err) {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     }
-  });
+});
 
-   //http://localhost:5000/deleteMember/1  Delete users
+//http://localhost:5000/deleteMember/1  Delete users
 app.put('/delete/:id', async (req, res, next) => {
     const id = req.params.id;
     const user = req.body.user;
     let sql = `UPDATE ${user} set status_delete = 'Y' WHERE id='${id}'`;
-    connection.query(sql,(error,result) =>{
-        if(error){ console.log(error); }
+    connection.query(sql, (error, result) => {
+        if (error) { console.log(error); }
 
-        if(user === 'agent'){
+        if (user === 'agent') {
             let sqlDeleteAgent = `UPDATE member set status_delete = 'Y' WHERE agent_id ='${id}'`;
-            connection.query(sqlDeleteAgent,(error,result) =>{
-                if(error){ console.log(error); }
+            connection.query(sqlDeleteAgent, (error, result) => {
+                if (error) { console.log(error); }
                 res.send({
-                        message: "Delete Success",
+                    message: "Delete Success",
                 });
                 res.end();
             });
         }
-        else{
-            res.send({ 
+        else {
+            res.send({
                 message: "Delete Success",
-        });
-        res.end();
+            });
+            res.end();
         }
     });
 });
 
 http://localhost:5000/logEdit/1
-app.post('/logEdit/:user_id',(require,response)=>{
+app.post('/logEdit/:user_id', (require, response) => {
     let user_id = require.params.user_id;
     const pageSize = require.body.pageSize;
     const pageNumber = require.body.pageIndex;
     const offset = (pageNumber - 1) * pageSize;
     const typeLog = require.body.typeLog;
-    
-    if (typeLog === 'member'){
-    let sql = `SELECT edittype, idedit, editbefore, editafter, created_at FROM logedit
-    WHERE idmember = '${user_id}' LIMIT ${pageSize} OFFSET ${offset}`;
-    connection.query(sql,(error,results)=>{
-        const dataLog = results;
-        if(error){ console.log(error) }
-        const totalCount = `SELECT COUNT(*) as count FROM logedit WHERE idmember = '${user_id}'`
-        connection.query(totalCount,(error,res) =>{
-            if(error){ console.log(error); }
-            response.send({
-            message: 'user_playSearch',
-            data: dataLog,
-            total: res[0].count
-        });
 
-        response.end();
+    if (typeLog === 'member') {
+        let sql = `SELECT edittype, idedit, editbefore, editafter, created_at FROM logedit
+    WHERE idmember = '${user_id}' LIMIT ${pageSize} OFFSET ${offset}`;
+        connection.query(sql, (error, results) => {
+            const dataLog = results;
+            if (error) { console.log(error) }
+            const totalCount = `SELECT COUNT(*) as count FROM logedit WHERE idmember = '${user_id}'`
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
+                response.send({
+                    message: 'user_playSearch',
+                    data: dataLog,
+                    total: res[0].count
+                });
+
+                response.end();
+            });
         });
-    });
     }
 
-    if (typeLog === "agent"){
+    if (typeLog === "agent") {
         let sql = `SELECT edittype, idedit, editbefore, editafter, created_at FROM logeditagent
         WHERE agentid = '${user_id}' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,(error,results)=>{
+        connection.query(sql, (error, results) => {
             const dataLog = results;
-            if(error){ console.log(error) }
+            if (error) { console.log(error) }
             const totalCount = `SELECT COUNT(*) as count FROM logeditagent WHERE agentid = '${user_id}'`
-            connection.query(totalCount,(error,res) =>{
-                if(error){ console.log(error); }
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
                 response.send({
-                message: 'user_playSearch',
-                data: dataLog,
-                total: res[0].count
-            });
-    
-            response.end();
+                    message: 'user_playSearch',
+                    data: dataLog,
+                    total: res[0].count
+                });
+
+                response.end();
             });
         });
     }
-    if (typeLog === 'admin'){
+    if (typeLog === 'admin') {
         let sql = `SELECT edittype, idedit, editbefore, editafter, created_at FROM logeditadmin
         WHERE adminid = '${user_id}' LIMIT ${pageSize} OFFSET ${offset}`;
-        connection.query(sql,(error,results)=>{
+        connection.query(sql, (error, results) => {
             const dataLog = results;
-            if(error){ console.log(error) }
+            if (error) { console.log(error) }
             const totalCount = `SELECT COUNT(*) as count FROM logeditadmin WHERE adminid = '${user_id}'`
-            connection.query(totalCount,(error,res) =>{
-                if(error){ console.log(error); }
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
                 response.send({
-                message: 'user_playSearch',
-                data: dataLog,
-                total: res[0].count
-            });
-    
-            response.end();
+                    message: 'user_playSearch',
+                    data: dataLog,
+                    total: res[0].count
+                });
+
+                response.end();
             });
         });
     }
@@ -877,18 +886,18 @@ app.get('/getallData', async (require, response, next) => {
     let sqlMember = `SELECT id FROM member WHERE status_delete='N' ORDER BY username ASC`;
     let sqlGame = `SELECT * FROM game`;
     let sqlGamePlay = `SELECT * FROM loggame`;
-    connection.query(sqlAdmin,(error,resultsAdmin) =>{
-        if(error){ console.log(error); }
-        connection.query(sqlAgent,(error,resultsAgent) =>{
-            if(error){ console.log(error); }
-            connection.query(sqlMember,(error,resultsMember) =>{
-                if(error){ console.log(error); }
-                connection.query(sqlGame,(error,resultsGame) =>{
-                    if(error){ console.log(error); }
-                    else{
-                        connection.query(sqlGamePlay,(error,resultsGamePlay) =>{
-                            if(error){ console.log(error); }
-                            else{
+    connection.query(sqlAdmin, (error, resultsAdmin) => {
+        if (error) { console.log(error); }
+        connection.query(sqlAgent, (error, resultsAgent) => {
+            if (error) { console.log(error); }
+            connection.query(sqlMember, (error, resultsMember) => {
+                if (error) { console.log(error); }
+                connection.query(sqlGame, (error, resultsGame) => {
+                    if (error) { console.log(error); }
+                    else {
+                        connection.query(sqlGamePlay, (error, resultsGamePlay) => {
+                            if (error) { console.log(error); }
+                            else {
                                 response.send({
                                     dataAdmin: resultsAdmin.length,
                                     dataAgent: resultsAgent.length,
@@ -913,7 +922,6 @@ app.get('/seamlesslogIn/:codeGame/:productId', (require, response) => {
     const codeGame = require.params.codeGame;
     const agentUsername = 'victest2';
     const xApiKey = 'f47e5065-412c-40d1-9e4c-f6c248919509';
-
     const authHeader = `Basic ${Buffer.from(`${agentUsername}:${xApiKey}`).toString('base64')}`;
     const body = {
         username: "victest2",
@@ -932,6 +940,7 @@ app.get('/seamlesslogIn/:codeGame/:productId', (require, response) => {
 
     axios.post('https://test.ambsuperapi.com/seamless/logIn', body, config)
         .then(res => {
+            console.log(res.data);
             response.status(201).json({ data: res.data });
         })
         .catch(error => {

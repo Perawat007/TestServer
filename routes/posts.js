@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bodyParser = require('body-parser');
 const post = require('../middleware/post');
 const auth = require('../middleware/auth');
 const loginController = require('../controllers/login');
@@ -8,16 +9,21 @@ const postsController = require('../controllers/posts');
 const testGame = require('../controllers/testgame');
 const gameAmb = require('../controllers/GameAmb')
 const gameAmbApi = require('../controllers/GameAmbApi')
+const gameAmbApiSu = require('../controllers/GameAmbApisu')
+const liveCasino = require('../controllers/LiveCasion')
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 // routerLogin
 //router.post('/loginAgent', loginController.loginAgent)
+router.get('/Balance', postsController.getBalance);
 // routerLogin
-router.post('/token',post);
-router.get('/test',postsController.getOne);
+router.post('/token', post);
+
+router.get('/test', postsController.getOne);
 router.get('/game', auth, postsController.getGame)
 router.post('/convertToken', postsController.convertToken)
 router.post('/convertData', postsController.convertData)
 router.post('/logAgentMember/:agentId', postsController.logAgentMember)
-router.put('/logoutMember/',postsController.logoutMember);
+router.put('/logoutMember/', postsController.logoutMember);
 router.post('/commissionGame', getCommission.getCommission)
 router.post('/commissionMonthly', getCommission.getCommissionMonthly)
 router.post('/postGetallData', getCommission.getallData)
@@ -44,9 +50,10 @@ router.get('/GetPercentSubAgent/:id', getCommission.getPercent)
 //testGame API
 router.post('/checkBalance', loginController.checkBalance)
 router.post('/settleBets', loginController.settleBets)
+
 //SlotXO
 router.post('/authenticate-token', loginController.authenticate)
-router.post('/balance', loginController.authenticate)
+router.post('/balance', loginController.balanceXO)
 router.post('/bet', loginController.PlaceBetSlotXo)
 router.post('/settle-bet', loginController.SettlePlaySlotXo)
 router.post('/cancel-bet', loginController.CancelPlaySlotXo)
@@ -55,6 +62,8 @@ router.post('/jackpot-win', loginController.JackpotPlaySlotXo)
 router.post('/transaction', loginController.TransactionSlotXo)
 router.post('/withdraw', loginController.WithdrawSlotXo)
 router.post('/deposit', loginController.DepositSlotXo)
+router.post('/authenticate', loginController.MobileauthenticateXoJo)
+router.post('/seamless/getAppUsername', loginController.GetMobileauthenticateXoJo)
 //SlotXO
 
 //ASK
@@ -149,7 +158,75 @@ router.post('/Ambslot/cancel', gameAmbApi.CancelAmbslot)
 
 //Spade Gaming
 router.post('/SpadeGaming', gameAmbApi.SpadeGaming)
+router.post('/SpadeGaming/checkBalance', gameAmbApi.SpadeGaming)
 //Spade Gaming
+
+//Ninja Slot/918 Kiss
+router.post('/Ninja918/transaction', gameAmbApiSu.FishingNinja918)
+//Ninja Slot/918 Kiss
+
+//GameAPi
+router.post('/game/checkBalance', gameAmbApiSu.GameCheckBalance)
+router.post('/game/placeBets', gameAmbApiSu.GamePlaceBets)
+router.post('/game/settleBets', gameAmbApiSu.GameSettleBets)
+router.post('/game/cancelBets', gameAmbApiSu.GameCancelBets)
+router.post('/game/adjustBets', gameAmbApiSu.GameAdjustBets)
+router.post('/game/unsettleBets', gameAmbApiSu.GameUnsettleBets)
+router.post('/game/winRewards', gameAmbApiSu.GameWinRewards)
+router.post('/game/cancelTips', gameAmbApiSu.GameTipsCancel)
+router.post('/game/voidBets', gameAmbApiSu.GameVoidBets)
+//GameAPi
+
+//EBet
+router.post('/EBet/registerOrLogin', liveCasino.registerOrLoginEBet)
+router.post('/EBet/syncCredit', liveCasino.GetBalanceEBet)
+router.post('/EBet/increaseCredit', liveCasino.IncreaseCreditEBet)
+router.post('/EBet/queryIncreaseCreditRecord', liveCasino.IncreaseCreditRecordsEBet)
+router.post('/EBet/refundSingleWallet', liveCasino.SingleWalletEBet)
+router.post('/EBet/autoBatchRefund', liveCasino.BatchRefundEBet)
+//EBet
+
+//bigGame
+router.post('/bigGame', liveCasino.IntegrationAPIsBigGaming)
+//bigGame
+
+//SA Gaming
+router.post('/SA/GetUserBalance', liveCasino.GetBalanceSA)
+router.post('/SA/PlaceBet', liveCasino.PlaceBetSA)
+router.post('/SA/PlayerWin', liveCasino.PlayerWinSA)
+router.post('/SA/PlayerLost', liveCasino.PlayerLostSA)
+router.post('/SA/PlaceBetCancel', liveCasino.PlaceBetCancelSA)
+//SA Gaming
+
+//Pragmatic Play
+router.post('/Play/authenticate.html', liveCasino.AuthenticatePlay)
+router.post('/Play/balance.html', liveCasino.GetBalancePlay)
+router.post('/Play/bet.html', liveCasino.BetPlay)
+router.post('/Play/result.html', liveCasino.ResultPlay)
+router.post('/Play/endRound.html', liveCasino.EndRoundPlay)
+router.post('/Play/refund.html', liveCasino.RefundPlay)
+router.post('/Play/bonusWin.html', liveCasino.BonusWinPlay)
+router.post('/Play/jackpotWin.html', liveCasino.BonusWinPlay)
+router.post('/Play/promoWin.html', liveCasino.BonusWinPlay)
+//Pragmatic Play
+
+//WM Casino
+router.post('/WM/balance', liveCasino.GetBalanceWM)
+router.post('/WM/betPayin', liveCasino.PlaceBetWM)
+router.post('/WM/betPayout', liveCasino.PayoutWM)
+router.post('/WM/refund', liveCasino.RefundWM)
+//WM Casino
+
+//Xtreme Gaming
+router.post('/Xtreme/user/balance', liveCasino.GetBalanceXtreme)
+router.post('/Xtreme/transaction/bet', liveCasino.PlaceBetXtreme)
+router.post('/Xtreme/transaction/settle', liveCasino.SettleBetXtreme)
+router.post('/Xtreme/transaction/rollback', liveCasino.CancelXtreme)
+//Xtreme Gaming
+
+//SexyGaming
+router.post('/SexyGaming', urlencodedParser, liveCasino.GetBalanceSexyGaming)
+//SexyGaming
 
 //testGame API
 module.exports = router;
