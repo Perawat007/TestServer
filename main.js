@@ -32,11 +32,10 @@ const connection = mysql.createPool({
 
 
 
-//http://localhost:5000/list_idAgent
+//http://localhost:5000/testApi
 app.get('/testApi', async (require, response) => {
     response.send({
         message: 'AllIDAgent',
-        data: results
     });
     response.end();
 });
@@ -971,4 +970,42 @@ app.get('/listGame/:productId', (require, response) => {
         .catch(error => {
             console.log(error);
         });
+});
+
+//http://localhost:5000/list_webgame
+app.post('/list_webgame', async (require, response) => {
+    const searchKeyword = require.body.name;
+    const pageSize = require.body.pageSize;
+    const pageNumber = require.body.pageIndex;
+    const offset = (pageNumber - 1) * pageSize;
+    if (searchKeyword === '') {
+        let sql = `SELECT * FROM gameweb LIMIT ${pageSize} OFFSET ${offset}`;
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            const totalCount = `SELECT COUNT(*) as count FROM gameweb `
+            connection.query(totalCount, (error, res) => {
+                if (error) { console.log(error); }
+                response.send({
+                    message: 'gameall',
+                    data: results,
+                    total: res[0].count
+                });
+
+                response.end();
+            });
+        });
+    } else {
+        let sql = `SELECT * FROM gameweb WHERE
+        namegame LIKE '%${searchKeyword}%' OR password_img LIKE '%${searchKeyword}%'
+        LIMIT ${pageSize} OFFSET ${offset}`;
+        connection.query(sql, async (error, results) => {
+            if (error) { console.log(error); }
+            response.send({
+                message: 'gameallSearch',
+                data: results,
+                total: results.length
+            });
+            response.end();
+        });
+    }
 });

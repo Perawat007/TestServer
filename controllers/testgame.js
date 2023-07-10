@@ -38,9 +38,9 @@ exports.saveTestGame = async (require, response) => {
             const tilesArr = tiles.split(",").map(Number);
             const winlineArr = winline.split(",").map(Number)
             const winCountArr = winCount.split(",").map(Number)
-            const wineArr = parseFloat(win); 0
-            const beteArr = parseFloat(bet); 0
-
+            const wineArr = parseFloat(win);
+            const beteArr = parseFloat(bet);
+            console.log(win);
             let sql_insert = `INSERT INTO user_play (member_id, game_id, bet, win, tiles, winline, winstyle, winCount, credit, created_at, game_feespin) 
             value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winline}','${winStyle}','${winCount}','${credit}',now(), '${isWinFreeSpin}')`;
 
@@ -88,7 +88,7 @@ exports.saveTestGame = async (require, response) => {
             value ('${user_id}','${game_id}','${bet}','${win}','${tiles}','${winlineArrLoop}','${winStyle}','${winCount}','${credit}',now(), '${isWinFreeSpin}')`;
                         console.log('run')
                         connection.query(sql_insert, (error, result_insert_play) => {
-                            if (!error) {
+                            if (error) {
                                 response.sendStatus(500);
                                 return;
                             } else {
@@ -136,7 +136,7 @@ exports.saveTestGame = async (require, response) => {
                                                                                     response.sendStatus(500);
                                                                                     return;
                                                                                 } else {
-                                                                                   /* connection.query(select_logdayGame, (error, result_logGameDay) => {
+                                                                                    connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                         if (result_commissionDay.length === 0) { //INSERT comgogoldplanet
                                                                                             if (game_id === '1') {
                                                                                                 let sql_insertCommission = `INSERT INTO comgogoldplanet (bet_gogold, win_gogold, day, monthly) 
@@ -200,12 +200,12 @@ exports.saveTestGame = async (require, response) => {
                                                                                                 });
                                                                                             }
                                                                                         }
-                                                                                    });*/
+                                                                                    });
                                                                                 }
                                                                             });
                                                                             // commission----------------------------------------------------------------------------------------------------------------------------//
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                                                                            /*let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
+                                                                            let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
                                                                             connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                 if (result_logGameDay.length === 0) {
                                                                                     if (game_id === '1') {
@@ -252,20 +252,7 @@ exports.saveTestGame = async (require, response) => {
                                                                             });
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
                                                                             isWinFreeSpinBuy = false;
-                                                                            /* response.setHeader('X-Foo', 'bar')
-                                                                             response.send({
-                                                                                 dataTiles: arrayTiles,
-                                                                                 dataCredit: results[0].credit,
-                                                                                 credit: arrayCredit,
-                                                                                 dataWin: arrayWin,
-                                                                                 dataFeeSpin: 'true',
-                                                                                 dataWinLine: arrayWinLine,
-                                                                                 dataWinStyle: arrayWinStyle,
-                                                                                 dataWinCount: flattenedArray,
-                                                                                 dataTotalWin: totalWin,
-                                                                                 dataMember: results[0].member_code
-                                                                             });
-                                                                             response.end();*/
+
                                                                             if (x === 45 && checkLoop === true) {
                                                                                 response.status(200).json({
                                                                                     dataTiles: arrayTiles,
@@ -280,6 +267,7 @@ exports.saveTestGame = async (require, response) => {
                                                                                     dataMember: results[0].member_code
                                                                                 })
                                                                                 checkLoop = false;
+                                                                                response.end();
                                                                             }
                                                                         }
                                                                     });
@@ -372,7 +360,7 @@ exports.saveTestGame = async (require, response) => {
                 // commission----------------------------------------------------------------------------------------------------------------------------//
 
                 // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                /*let select_logdayGame = `SELECT * FROM logdaygame WHERE game_id = '${game_id}' AND day = '${date}'`;
+                let select_logdayGame = `SELECT * FROM logdaygame WHERE game_id = '${game_id}' AND day = '${date}'`;
                 connection.query(select_logdayGame, (error, result_logGameDay) => {
                     if (result_logGameDay.length === 0) {
                         if (game_id === '1') {
@@ -416,11 +404,11 @@ exports.saveTestGame = async (require, response) => {
                             }
                         });
                     }
-                });*/
+                });
                 // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
 
                 connection.query(sql_insert, (error, result_insert_play) => {
-                    if (!error) {
+                    if (error) {
                         response.sendStatus(500);
                         return;
                     } else {
@@ -459,7 +447,7 @@ exports.saveTestGame = async (require, response) => {
                                                                 return;
                                                             }
                                                             if (isWinFreeSpin === 'false') {
-                                                                response.send({
+                                                                response.status(200).json({
                                                                     //message: 'member play game: '+game_id,
                                                                     dataTiles: tilesArr,
                                                                     dataCredit: results[0].credit,
@@ -820,7 +808,7 @@ exports.saveTestGameBuy = async (require, response) => {
                                                                             });
                                                                             // commission----------------------------------------------------------------------------------------------------------------------------//
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
-                                                                           /* let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
+                                                                            let select_logdayGame = `SELECT * FROM logdaygame WHERE day = '${date}' AND game_id = '${game_id}'`;
                                                                             connection.query(select_logdayGame, (error, result_logGameDay) => {
                                                                                 if (result_logGameDay.length === 0) {
                                                                                     if (game_id === '1') {
@@ -860,7 +848,7 @@ exports.saveTestGameBuy = async (require, response) => {
                                                                                         }
                                                                                     });
                                                                                 }
-                                                                            });*/
+                                                                            });
                                                                             // LogDayGame----------------------------------------------------------------------------------------------------------------------------//
                                                                             isWinFreeSpinBuy = false;
                                                                             response.send({
@@ -1062,8 +1050,8 @@ exports.saveTestGameBuy = async (require, response) => {
     }
 };
 
-
-/*function MainGame(credit, bet, buyFreeSpin) {
+/*
+function MainGame(credit, bet, buyFreeSpin) {
     let win = 0//เงินที่ชนะในรอบนี้
     let tile15 = []//tile 15 ชิ้นใน playarea
     let reels = [[], [], [], [], []]//5 reel ที่อยู่ในเกมจริงๆ
@@ -1141,7 +1129,7 @@ exports.saveTestGameBuy = async (require, response) => {
                             win += Math.max(left3, middle3, right3, left4, right4, left5)
                         }
 
-                        /*for (let j = 0; j < 30; j++) {
+                        for (let j = 0; j < 30; j++) {
                             if (highestWinLine[j] != 0) {
                                 winLine.push(j)
                             }
